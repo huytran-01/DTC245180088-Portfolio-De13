@@ -1,0 +1,29 @@
+# Prometheus Configuration - DTC245180088 (De 13)
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+rule_files:
+  - "/etc/prometheus/alert_rules.yml"
+
+scrape_configs:
+  # 1. Tu giam sat Prometheus
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # 2. Giam sat Container qua cAdvisor
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ["cadvisor:8080"]
+
+  # 3. Giam sat Web Server Nginx qua Nginx Prometheus Exporter
+  - job_name: "nginx"
+    static_configs:
+      - targets: ["nginx_exporter:9113"]
+
+  # 4. Giam sat Database MySQL qua MySQLd Exporter
+  - job_name: "mysql"
+    static_configs:
+      - targets: ["mysqld_exporter:9104"]

@@ -1,0 +1,53 @@
+# Prometheus Alert Rules - DTC245180088 (De 13)
+groups:
+  - name: portfolio_monitoring_alerts
+    rules:
+      # Canh bao khi co container bi down
+      - alert: ContainerDown
+        expr: time() - container_last_seen > 60
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container {{ $labels.name }} bi dung hoat dong"
+          description: "Container {{ $labels.name }} khong gui du lieu trong hon 60 giay."
+
+      # Canh bao tai su dung CPU container qua cao
+      - alert: HighContainerCpuUsage
+        expr: (sum by(name) (rate(container_cpu_usage_seconds_total[5m])) * 100) > 85
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} su dung CPU cao"
+          description: "Tai CPU cua container {{ $labels.name }} vuot nguong 85% trong 2 phut."
+
+      # Canh bao su dung Memory container qua cao
+      - alert: HighContainerMemoryUsage
+        expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes * 100) > 85
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} su dung RAM cao"
+          description: "Dung luong RAM cua container {{ $labels.name }} vuot muc 85% gioi han cho phep."
+
+      # Canh bao MySQL Service Down
+      - alert: MySQLDown
+        expr: mysql_up == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Dich vu MySQL bi down"
+          description: "MySQL Exporter khong the ket noi toi MySQL Database (portfolio_db)."
+
+      # Canh bao Nginx Service Down
+      - alert: NginxDown
+        expr: nginx_up == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Nginx Reverse Proxy bi down"
+          description: "Nginx Exporter khong the truy cap /stub_status tren cong 8081."
